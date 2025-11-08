@@ -1,5 +1,6 @@
 #include "ScratchDetector.h"
 #include <iostream>
+#include <cmath>
 
 ScratchDetector::ScratchDetector(const Parameters& params) 
     : params(params) {
@@ -117,8 +118,11 @@ bool ScratchDetector::isScratch(const std::vector<cv::Point>& contour,
     // Step 2: Calculate dimensions
     double width = bbox.width;
     double height = bbox.height;
-    double length = std::max(width, height);
-    double thickness = std::min(width, height);
+    //double length = std::max(width, height);
+    //double thickness = std::min(width, height);
+    double length = std::sqrt(width*width + height*height);
+    double area = cv::contourArea(contour);
+    double thickness = area/length;
     
     // TODO 3.7: Check if it matches scratch criteria
     // A scratch is:
@@ -133,7 +137,7 @@ bool ScratchDetector::isScratch(const std::vector<cv::Point>& contour,
     // Check all criteria
     bool isValid = (length >= params.minLength) && (thickness <= params.maxWidth) 
                     && (aspectRatio >= params.minAspectRatio);
-    std::cout<< isValid <<":"<< length <<","<< thickness <<std::endl;
+    std::cout<< isValid <<":"<< length <<","<< thickness << ":" << area<<std::endl;
     if (!isValid) {
         return false;
     }
