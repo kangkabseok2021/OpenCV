@@ -7,6 +7,8 @@
 void processImage(const std::string& imagePath);
 void processBatch(const std::string& directory);
 cv::Mat createTestImage();
+void practiceMorphology();
+void practiceEdgeDetection();
 
 int main(int argc, char** argv) {
     std::cout << "\n";
@@ -14,19 +16,13 @@ int main(int argc, char** argv) {
     std::cout << "    Scratch Detection System v1.0      \n";
     std::cout << "========================================\n\n";
     
-    // TODO 5.1: Handle command-line arguments
-    // Support two modes:
-    // 1. Single image: ./ScratchDetector image.jpg
-    // 2. Batch processing: ./ScratchDetector --batch /path/to/folder
-    
-    // YOUR CODE HERE (10-15 lines)
     if (argc < 2) {
-        std::cout << "Usage:\n";
+        std::cout << "Usage for Scratch Detection:\n";
         std::cout << "  Single image: " << argv[0] << " <image_path>\n";
         std::cout << "  Batch mode:   " << argv[0] << " --batch <directory>\n";
-        cv::Mat image = createTestImage();
-        cv::imwrite("test_image.jpg", image);
-        cv::waitKey(0);
+        std::cout << "Now for practice OpenCV:\n";
+        //practiceMorphology();
+        //practiceEdgeDetection();
         return 1;
     }
     
@@ -43,7 +39,6 @@ int main(int argc, char** argv) {
 void processImage(const std::string& imagePath) {
     std::cout << "Processing: " << imagePath << "\n\n";
     
-    // TODO 5.2: Complete image processing pipeline
     // 1. Load image
     // 2. Detect scratches
     // 3. Visualize results
@@ -72,7 +67,7 @@ void processImage(const std::string& imagePath) {
     params.cannyThreshold2 = 150;
     params.minLength = 20;
     params.maxWidth = 8;
-    params.minAspectRatio = 3.0;
+    params.minAspectRatio = 20.0;
 
     ScratchDetector detector(params);
     std::vector<Scratch> scratches = detector.detect(image);
@@ -97,12 +92,6 @@ void processImage(const std::string& imagePath) {
 
 void processBatch(const std::string& directory) {
     std::cout << "Batch processing: " << directory << "\n\n";
-    
-    // TODO 5.3: Process multiple images
-    // 1. Load all images from directory
-    // 2. Process each one
-    // 3. Save all results to output folder
-    // 4. Generate summary report
     
     ImageLoader loader;
     std::vector<cv::Mat> images = loader.loadImagesFromDirectory(directory);
@@ -151,4 +140,76 @@ cv::Mat createTestImage() {
     img += noise;
     
     return img;
+}
+
+void practiceMorphology() {
+    std::string imagePath = "images/detect_blob.png";
+    ImageLoader loader;
+    cv::Mat image = loader.loadImage(imagePath);
+    if (image.empty()) {
+        std::cerr << "Error: " << loader.getLastError() << std::endl;
+        return;
+    }
+    if (!loader.isValidImage(image)) {
+        std::cerr << "Error: Invalid image" << std::endl;
+        return;
+    }
+    std::cout << "Image size: " << image.cols << "x" << image.rows << "\n\n";
+
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5), cv::Point(2, 2));
+    cv::Mat derode;
+    //std::string window_name = "Morphology Demo";
+    cv::morphologyEx(image, derode, cv::MORPH_ERODE, element);
+    cv::imwrite("output/morphology_erode.jpg", derode);
+    cv::Mat ddilate;
+    cv::morphologyEx(image, ddilate, cv::MORPH_DILATE, element);
+    cv::imwrite("output/morphology_dilate.jpg", ddilate);
+    cv::Mat dopen;
+    cv::morphologyEx(image, dopen, cv::MORPH_OPEN, element);
+    cv::imwrite("output/morphology_open.jpg", dopen);
+    cv::Mat dclose;
+    cv::morphologyEx(image, dclose, cv::MORPH_CLOSE, element);
+    cv::imwrite("output/morphology_close.jpg", dclose);
+    cv::Mat dgradient;
+    cv::morphologyEx(image, dgradient, cv::MORPH_GRADIENT, element);
+    cv::imwrite("output/morphology_gradient.jpg", dgradient);
+    cv::Mat dtophat;
+    cv::morphologyEx(image, dtophat, cv::MORPH_TOPHAT, element);
+    cv::imwrite("output/morphology_tophat.jpg", dtophat);
+    cv::Mat dblackhat;
+    cv::morphologyEx(image, dblackhat, cv::MORPH_BLACKHAT, element);
+    cv::imwrite("output/morphology_blackhat.jpg", dblackhat);
+
+    //cv::imshow(window_name, dst);
+    //cv::waitKey(0);
+}
+
+void practiceEdgeDetection(){
+    // Step 1: Load image
+    std::string imagePath = "images/detect_blob.png";
+    cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
+    if (image.empty()) {
+        std::cerr << "Error: " << std::endl;
+        return;
+    }
+    std::cout << "Image size: " << image.cols << "x" << image.rows << "\n\n";
+    cv::imwrite("output/gray_scale.jpg", image);
+
+    cv::Mat sobelx, sobely, gradient, gradient_abs;
+    cv::Sobel(image, sobelx, CV_64F, 1, 0, 3);
+    cv::Sobel(image, sobely, CV_64F, 0, 1, 3);
+    cv::magnitude(sobelx, sobely, gradient);
+    cv::convertScaleAbs(gradient, gradient_abs);
+    cv::imwrite("output/soble_gradient.jpg", gradient_abs);
+
+    cv::Mat laplacian, laplacian_abs;
+    cv::Laplacian(image, laplacian, CV_64F);
+    cv::convertScaleAbs(laplacian, laplacian_abs);
+    cv::imwrite("output/laplacian.jpg", laplacian_abs);
+
+    cv::Mat blur, edges;
+    cv::GaussianBlur(image, blur, cv::Size(5, 5), 1.4);
+    cv::Canny(blur, edges, 100, 200);
+    cv::imwrite("output/blur.jpg", blur);
+    cv::imwrite("output/edges.jpg", edges);
 }
