@@ -10,6 +10,7 @@
 struct Scratch {
     std::vector<cv::Point> contour;  // The actual scratch shape
     cv::Rect boundingBox;             // Rectangle around the scratch
+    cv::RotatedRect rotatedBox;       // Rotated Rectangle around the scratch
     double length;                    // Approximate length of scratch
     double angle;                     // Angle of scratch in degrees
     cv::Point2f centerPoint;          // Center point of the scratch

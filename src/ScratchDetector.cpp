@@ -22,7 +22,7 @@ std::vector<Scratch> ScratchDetector::detect(const cv::Mat& image) {
     // Step 2: Edge detection
     edgeImage = detectEdges(processedImage);
     
-    // TODO 3.1: Find contours in the edge image
+    // Find contours in the edge image
     // HINTS:
     // - Use cv::findContours()
     // - Mode: cv::RETR_EXTERNAL (only external contours)
@@ -33,7 +33,7 @@ std::vector<Scratch> ScratchDetector::detect(const cv::Mat& image) {
     
     std::cout << "Found " << contours.size() << " contours" << std::endl;
     
-    // TODO 3.2: Analyze each contour
+    // Analyze each contour
     // For each contour:
     // 1. Create a Scratch object
     // 2. Call isScratch() to check if it's actually a scratch
@@ -112,17 +112,18 @@ bool ScratchDetector::isScratch(const std::vector<cv::Point>& contour,
     // Step 1: Get bounding rectangle
     // YOUR CODE HERE (1 line)
     cv::Rect bbox = cv::boundingRect(contour);
-    // cv::Rect bbox;
+    cv::RotatedRect rbox = cv::minAreaRect(contour);
     
     
     // Step 2: Calculate dimensions
-    double width = bbox.width;
-    double height = bbox.height;
-    //double length = std::max(width, height);
-    //double thickness = std::min(width, height);
-    double length = std::sqrt(width*width + height*height);
-    double area = cv::contourArea(contour);
-    double thickness = area/length;
+    cv::Point2f vertices[4];
+    rbox.points(vertices);
+    double width = cv::norm(vertices[0] - vertices[1]);
+    double height = cv::norm(vertices[1] - vertices[2]);
+    double thickness = std::min(width, height);
+    double length = std::max(width, height);
+    // double area = cv::contourArea(contour);
+    // double thickness = area/length;
     
     // TODO 3.7: Check if it matches scratch criteria
     // A scratch is:
@@ -137,7 +138,7 @@ bool ScratchDetector::isScratch(const std::vector<cv::Point>& contour,
     // Check all criteria
     bool isValid = (length >= params.minLength) && (thickness <= params.maxWidth) 
                     && (aspectRatio >= params.minAspectRatio);
-    std::cout<< isValid <<":"<< length <<","<< thickness << ":" << area<<std::endl;
+    //std::cout<< isValid <<":"<< length <<","<< thickness << ":" << aspectRatio <<std::endl;
     if (!isValid) {
         return false;
     }
@@ -146,18 +147,19 @@ bool ScratchDetector::isScratch(const std::vector<cv::Point>& contour,
     // Calculate:
     // - contour (already provided)
     // - boundingBox
+    // - rotatedBox
     // - length
     // - angle (use cv::minAreaRect and RotatedRect::angle)
     // - centerPoint
     
-    // YOUR CODE HERE (10-15 lines)
     scratch.contour = contour;
     scratch.boundingBox = bbox;
-    scratch.length = length;
-    
+
+    scratch.rotatedBox = rbox;
+    scratch.length = std::max(bbox.width, bbox.height);
+
     // Get angle using minimum area rectangle
-    cv::RotatedRect rotRect = cv::minAreaRect(contour);
-    scratch.angle = rotRect.angle;
+    scratch.angle = rbox.angle;
     
     // Get center point
     cv::Moments m = cv::moments(contour);

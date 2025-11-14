@@ -6,7 +6,7 @@
 
 void processImage(const std::string& imagePath);
 void processBatch(const std::string& directory);
-cv::Mat createTestImage();
+void createTestImage();
 void practiceMorphology();
 void practiceEdgeDetection();
 
@@ -23,6 +23,7 @@ int main(int argc, char** argv) {
         std::cout << "Now for practice OpenCV:\n";
         //practiceMorphology();
         //practiceEdgeDetection();
+        createTestImage();
         return 1;
     }
     
@@ -126,20 +127,26 @@ void processBatch(const std::string& directory) {
     std::cout << "Average per image: " << (totalScratches / images.size()) << "\n";
 }
 
-cv::Mat createTestImage() {
+void createTestImage() {
     cv::Mat img = cv::Mat::zeros(500, 700, CV_8UC3);
-    img.setTo(cv::Scalar(180, 180, 180)); // Gray background
+    img.setTo(cv::Scalar(220, 220, 220)); // Gray background
     
     // Draw a scratch (thin dark line)
-    cv::line(img, cv::Point(100, 100), cv::Point(400, 102), 
+    cv::line(img, cv::Point(100, 100), cv::Point(400, 150), 
              cv::Scalar(50, 50, 50), 2);
+    cv::line(img, cv::Point(200, 300), cv::Point(400, 200), 
+             cv::Scalar(50, 250, 50), 3);
+    cv::line(img, cv::Point(50, 150), cv::Point(100, 250), 
+             cv::Scalar(50, 50, 250), 6);
+    cv::line(img, cv::Point(450, 350), cv::Point(300, 450), 
+             cv::Scalar(50, 50, 0), 7);
     
     // Add noise
     cv::Mat noise(img.size(), img.type());
     cv::randn(noise, cv::Scalar::all(0), cv::Scalar::all(10));
     img += noise;
     
-    return img;
+    cv::imwrite("test2.png", img);
 }
 
 void practiceMorphology() {

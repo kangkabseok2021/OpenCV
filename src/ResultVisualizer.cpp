@@ -24,10 +24,17 @@ cv::Mat ResultVisualizer::drawScratches(const cv::Mat& image,
     for (const auto& scratch : scratches) {
         // Draw contour
         std::vector<std::vector<cv::Point>> contours = {scratch.contour};
-        cv::drawContours(result, contours, 0, cv::Scalar(0, 0, 255), 2);
+        //cv::drawContours(result, contours, 0, cv::Scalar(0, 0, 255), 2);
    
         // Draw bounding box
         cv::rectangle(result, scratch.boundingBox, cv::Scalar(0, 255, 255), 2);
+
+        //Draw rotated box
+        cv::Point2f vertices[4];
+        scratch.rotatedBox.points(vertices);
+        for(int j = 0; j< 4 ; ++j) {
+            cv::line(result, vertices[j], vertices[(j+1)%4], cv::Scalar(0, 120, 120), 2);
+        }
        
         // Draw center point
         cv::circle(result, scratch.centerPoint, 3, cv::Scalar(0, 255, 0), -1);
@@ -56,7 +63,6 @@ cv::Mat ResultVisualizer::createResultImage(const cv::Mat& image,
     int panelHeight = 150;
     cv::Mat panel = cv::Mat::ones(panelHeight, annotated.cols, CV_8UC3) * 255;
     
-    // YOUR CODE HERE (20-30 lines)
     // Example structure:
     // - Calculate statistics (count, max length, etc.)
     // - Draw text on panel using cv::putText()
