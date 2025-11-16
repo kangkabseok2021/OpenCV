@@ -43,7 +43,7 @@ make
 
 # Presentation
 
-## Example of origibal image and result image
+## Example of original image and result image
 ![alt text](output/Test4/original.jpg)
 ![alt text](output/Test4/result.jpg)
 
