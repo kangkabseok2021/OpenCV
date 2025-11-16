@@ -67,7 +67,7 @@ void processImage(const std::string& imagePath) {
     params.cannyThreshold1 = 50;
     params.cannyThreshold2 = 150;
     params.minLength = 20;
-    params.maxWidth = 8;
+    params.maxWidth = 15;
     params.minAspectRatio = 5.0;
 
     ScratchDetector detector(params);
@@ -89,7 +89,7 @@ void processImage(const std::string& imagePath) {
     visualizer.saveResult(result, "output/result.jpg");
     visualizer.generateReport(scratches, "output/report.txt");
     std::cout << "\nPress any key to close windows..." << std::endl;
-    cv::waitKey(500);
+    cv::waitKey(0);
     cv::destroyAllWindows();
 }
 
