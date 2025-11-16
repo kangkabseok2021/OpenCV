@@ -68,7 +68,7 @@ void processImage(const std::string& imagePath) {
     params.cannyThreshold2 = 150;
     params.minLength = 20;
     params.maxWidth = 8;
-    params.minAspectRatio = 20.0;
+    params.minAspectRatio = 5.0;
 
     ScratchDetector detector(params);
     std::vector<Scratch> scratches = detector.detect(image);
@@ -84,10 +84,12 @@ void processImage(const std::string& imagePath) {
 
     // Step 5: Save
     std::filesystem::create_directories("output");
+    visualizer.saveResult(image, "output/original.jpg");
+    visualizer.saveResult(detector.getEdgeImage(), "output/edges.jpg");
     visualizer.saveResult(result, "output/result.jpg");
     visualizer.generateReport(scratches, "output/report.txt");
     std::cout << "\nPress any key to close windows..." << std::endl;
-    cv::waitKey(0);
+    cv::waitKey(500);
     cv::destroyAllWindows();
 }
 
@@ -134,13 +136,17 @@ void createTestImage() {
     // Draw a scratch (thin dark line)
     cv::line(img, cv::Point(100, 100), cv::Point(400, 150), 
              cv::Scalar(50, 50, 50), 2);
-    cv::line(img, cv::Point(200, 300), cv::Point(400, 200), 
+    cv::line(img, cv::Point(200, 450), cv::Point(340, 300), 
              cv::Scalar(50, 250, 50), 3);
     cv::line(img, cv::Point(50, 150), cv::Point(100, 250), 
              cv::Scalar(50, 50, 250), 6);
     cv::line(img, cv::Point(450, 350), cv::Point(300, 450), 
              cv::Scalar(50, 50, 0), 7);
-    
+    cv::line(img, cv::Point(100, 150), cv::Point(400, 250), 
+             cv::Scalar(150, 50, 250), 6);
+    cv::line(img, cv::Point(350, 50), cv::Point(600, 350), 
+             cv::Scalar(50, 50, 150), 10);
+   
     // Add noise
     cv::Mat noise(img.size(), img.type());
     cv::randn(noise, cv::Scalar::all(0), cv::Scalar::all(10));

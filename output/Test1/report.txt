@@ -1,0 +1,9 @@
+=== Scratch Detection Report ===
+
+Total Scratches: 1
+Status: PASSED
+
+Detailed List:
+   ID   Center (x,y)      Length      Angle
+--------------------------------------------------
+    1     200,  450      205.00       26.68
